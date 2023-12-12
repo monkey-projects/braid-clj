@@ -1,0 +1,17 @@
+{:deps {com.cognitect/transit-clj {:mvn/version "1.0.333"}
+        aleph/aleph {:mvn/version "0.7.0-rc1"}
+        com.aayushatharva.brotli4j/brotli4j {:mvn/version "1.13.0"}
+        com.github.luben/zstd-jni {:mvn/version "1.5.5-11"}}
+
+ :paths ["src"]
+
+ :aliases
+ {:dev
+  {:extra-paths ["env/dev" "dev-resources"]}
+
+  :test
+  {:extra-deps {com.monkeyprojects/build {:mvn/version "0.2-SNAPSHOT"}}
+   :exec-fn monkey.test/all}
+
+  :watch
+  {:exec-fn monkey.test/watch}}}
