@@ -28,3 +28,36 @@
                   {:content "test message"})
                  :args
                  :basic-auth))))))
+
+(deftest env->config
+  (testing "creates default config on empty env"
+    (is (map? (sut/env->config {}))))
+
+  (testing "adds bot id and token"
+    (is (= {:bot-id "test-bot"
+            :token "test-token"}
+           (-> {:braid-bot-id "test-bot"
+                :braid-bot-token "test-token"}
+               (sut/env->config)
+               :bot
+               (select-keys [:bot-id :token])))))
+
+  (testing "uses url if specified"
+    (is (= "http://test-url"
+           (-> {:braid-url "http://test-url"}
+               (sut/env->config)
+               :bot
+               :url))))
+
+  (testing "uses default url if unspecified"
+    (is (= sut/default-url
+           (-> {}
+               (sut/env->config)
+               :bot
+               :url))))
+
+  (testing "adds http port"
+    (is (= 8080 (-> {:http-port 8080}
+                    (sut/env->config)
+                    :http
+                    :port)))))

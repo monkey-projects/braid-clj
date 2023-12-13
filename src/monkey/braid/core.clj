@@ -1,6 +1,7 @@
 (ns monkey.braid.core
-  (:gen-class)
   (:require [aleph.http :as http]
+            [config.core :as cc]
+            [medley.core :as mc]
             [monkey.braid
              [server :as s]
              [utils :as u]]))
@@ -26,6 +27,24 @@
               :headers {:content-type "application/transit+json"}
               :basic-auth (bot->auth bot)}))
 
-(defn -main [& args]
-  ;; TODO Handle cmdline args
-  (s/start-server {}))
+(def default-config
+  {:http {:port 3000}
+   :insecure false
+   :bot {:url default-url}})
+
+(defn env->config
+  "Creates a configuration map from the environment values."
+  ([env]
+   (letfn [(add-bot-info [r]
+             (update r :bot
+                     mc/assoc-some
+                     :bot-id (:braid-bot-id env)
+                     :token (:braid-bot-token env)
+                     :url (:braid-url env)))
+           (add-http-info [r]
+             (update r :http mc/assoc-some :port (:http-port env)))]
+     (-> default-config
+         (add-bot-info)
+         (add-http-info))))
+  ([]
+   (env->config cc/env)))
