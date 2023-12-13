@@ -1,6 +1,9 @@
 (ns monkey.braid.core
+  (:gen-class)
   (:require [aleph.http :as http]
-            [monkey.braid.utils :as u]))
+            [monkey.braid
+             [server :as s]
+             [utils :as u]]))
 
 (def default-url "https://braid.chat/api")
 
@@ -22,3 +25,7 @@
                          (u/->transit))
               :headers {:content-type "application/transit+json"}
               :basic-auth (bot->auth bot)}))
+
+(defn -main [& args]
+  ;; TODO Handle cmdline args
+  (s/start-server {}))

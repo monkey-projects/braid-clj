@@ -3,7 +3,8 @@
             [clojure.java.io :as io]
             [monkey.braid
              [core :as c]
-             [server :as s]])
+             [server :as s]
+             [utils :as u]])
   (:import java.io.PushbackReader))
 
 (defn load-bot []
@@ -26,4 +27,9 @@
   (swap! server (fn [srv]
                   (when srv
                     (s/stop-server srv))
-                  (s/start-server conf))))
+                  (s/start-server (merge {:insecure true} conf)))))
+
+(defn secure-server [token]
+  (start-server {:bot {:bot-id (random-uuid)
+                       :token token}
+                 :insecure false}))

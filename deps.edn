@@ -1,12 +1,16 @@
 {:deps {com.cognitect/transit-clj {:mvn/version "1.0.333"}
         aleph/aleph {:mvn/version "0.7.0-rc1"}
+        buddy/buddy-core {:mvn/version "1.11.423"}
         ch.qos.logback/logback-classic {:mvn/version "1.4.11"}
         com.aayushatharva.brotli4j/brotli4j {:mvn/version "1.13.0"}
         com.github.luben/zstd-jni {:mvn/version "1.5.5-11"}
+        com.github.loki4j/loki-logback-appender {:mvn/version "1.5.0-m1"}
+        medley/medley {:mvn/version "1.4.0"}
         metosin/muuntaja-msgpack {:mvn/version "0.6.8"}
         metosin/reitit-middleware {:mvn/version "0.7.0-alpha7"}
         metosin/reitit-ring {:mvn/version "0.7.0-alpha7"}
-        metosin/reitit-spec {:mvn/version "0.7.0-alpha7"}}
+        metosin/reitit-spec {:mvn/version "0.7.0-alpha7"}
+        yogthos/config {:mvn/version "1.2.0"}}
 
  :paths ["src"]
 
@@ -20,4 +24,12 @@
    :exec-fn monkey.test/all}
 
   :watch
-  {:exec-fn monkey.test/watch}}}
+  {:exec-fn monkey.test/watch}
+
+  :uber
+  {:exec-fn monkey.build/uberjar
+   :exec-args {:jar "target/monkey-braid.jar"
+               :lib com.monkeyprojects/braid-clj
+               :version "0.1.0-SNAPSHOT"
+               :main "monkey.braid.core"}
+   :extra-deps {com.monkeyprojects/build {:mvn/version "0.2-SNAPSHOT"}}}}}
