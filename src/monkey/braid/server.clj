@@ -12,15 +12,13 @@
              [parameters :as rrmp]]
             [ring.util.response :as rur]))
 
-(s/def ::content string?)
+(s/def ::content (every-pred string? not-empty))
 (s/def ::msg (s/keys :req-un [::content]))
 
 (defn recv-message [req]
   (let [body (get-in req [:parameters :body])]
     (log/debug "Got incoming message:" body)
-    (if (string? (:content body))
-      (rur/response "ok")
-      (rur/bad-request "message requires content"))))
+    (rur/response "ok")))
 
 (defn make-router [conf]
   (ring/router
@@ -29,6 +27,7 @@
    {:data {:muuntaja mc/instance
            :coercion rcs/coercion
            :middleware [rrmm/format-middleware
+                        rrc/coerce-exceptions-middleware
                         rrc/coerce-request-middleware]}}))
 
 (defn make-handler [conf]

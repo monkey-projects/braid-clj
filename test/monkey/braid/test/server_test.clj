@@ -22,7 +22,12 @@
       (is (= {:port 3000} (sut/start-server {}))))))
 
 (deftest make-handler
-  (let [h (sut/make-handler {})]
+  (let [h (sut/make-handler {})
+        send-request (fn [msg]
+                       (-> (rm/request :put "/recv")
+                           (rm/body (u/->transit msg))
+                           (rm/header "content-type" "application/transit+json")
+                           (h)))]
     (testing "`/recv`"
       (testing " handles incoming `PUT` requests"
         (is (= 200 (-> (rm/request :put "/recv")
@@ -31,12 +36,13 @@
                        :status))))
 
       (testing "parses body from messagepack encoded transit"
-        (let [body (u/->transit {:content "test message"})]
-        (is (= 200 (-> (rm/request :put "/recv")
-                       (rm/body body)
-                       (rm/header "content-type" "application/transit+json")
-                       (h)
-                       :status))))))
+        (is (= 200 (:status (send-request {:content "test message"})))))
+
+      (testing "`400` when no content"
+        (is (= 400 (:status (send-request {})))))
+
+      (testing "`400` when empty content"
+        (is (= 400 (:status (send-request {:content ""}))))))
 
     (testing "404 when not found"
       (is (= 404 (-> (rm/request :ge "/nonexisting")
