@@ -1,7 +1,6 @@
 (ns monkey.braid.core
   (:require [aleph.http :as http]
-            [cognitect.transit :as ct])
-  (:import java.io.ByteArrayOutputStream))
+            [monkey.braid.utils :as u]))
 
 (def default-url "https://braid.chat/api")
 
@@ -9,12 +8,6 @@
   "Creates a bot structure using the config"
   [config]
   (merge {:url default-url} config))
-
-(defn ->transit [x]
-  (let [out (ByteArrayOutputStream.)
-        w (ct/writer out :json)]
-    (ct/write w x)
-    (.toString out)))
 
 (def bot->auth (juxt :bot-id :token))
 
@@ -26,6 +19,6 @@
                          (merge {:id (random-uuid)
                                  :mentioned-user-ids []
                                  :mentioned-tag-ids []})
-                         (->transit))
+                         (u/->transit))
               :headers {:content-type "application/transit+json"}
               :basic-auth (bot->auth bot)}))
