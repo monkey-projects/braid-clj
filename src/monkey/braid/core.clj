@@ -1,5 +1,7 @@
 (ns monkey.braid.core
   (:require [aleph.http :as http]
+            [clojure.spec.alpha :as spec]
+            [clojure.tools.logging :as log]
             [config.core :as cc]
             [medley.core :as mc]
             [monkey.braid
@@ -16,7 +18,8 @@
 (def bot->auth (juxt :bot-id :token))
 
 (defn send-message
-  "Sends a message as given bot.  The `:content` and `:thread-id` must be specified."
+  "Sends a message as given bot.  The `:content` and `:thread-id` must be specified.
+   Returns a deferred, so sending is async."
   [{:keys [url] :as bot} msg]
   (http/post (str url "/bots/message")
              {:body (->> msg
@@ -48,3 +51,16 @@
          (add-http-info))))
   ([]
    (env->config cc/env)))
+
+(defn send-response
+  "If `msg` is a valid message, sends it to the configured Braid server."
+  [conf msg]
+  (when (spec/valid? ::s/msg-out msg)
+    (log/debug "Sending message out:" msg)
+    (send-message (:bot conf) msg)))
+
+(defn start-bot-server [conf handler]
+  (s/start-server (assoc conf :handler (comp (partial send-response conf) handler))))
+
+(defn stop-bot-server [srv]
+  (s/stop-server srv))

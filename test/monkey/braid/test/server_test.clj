@@ -28,7 +28,8 @@
       (is (= {:port 3000} (sut/start-server {:insecure true}))))))
 
 (deftest make-handler
-  (let [h (sut/make-handler {:insecure true})
+  (let [h (sut/make-handler {:insecure true
+                             :handler (constantly nil)})
         msg-body (fn [msg]
                    (u/->transit (assoc msg :id (random-uuid))))
         request (fn [msg]
@@ -55,7 +56,8 @@
 
       (testing "security"
         (let [secured (sut/make-handler {:bot {:bot-id "test-id"
-                                               :token "test-token"}})]
+                                               :token "test-token"}
+                                         :handler (constantly nil)})]
           (testing "401 when no valid header specified"
             (is (= 401 (-> (request {:content "I'm a hacker"})
                            (secured)
@@ -74,3 +76,19 @@
       (is (= 404 (-> (rm/request :ge "/nonexisting")
                      (h)
                      :status))))))
+
+(deftest message-handler
+  (testing "creates a fn"
+    (is (fn? (sut/message-handler (constantly "ok")))))
+
+  (testing "returns 200 response"
+    (let [h (sut/message-handler (constantly "ok"))]
+      (is (= 200 (:status (h {}))))))
+
+  (testing "passes body to handler fn"
+    (let [recv (atom [])
+          h (sut/message-handler (partial swap! recv conj))
+          msg {:content "test message"}]
+      (is (map? (h {:parameters {:body msg}})))
+      (is (= 1 (count @recv)))
+      (is (= msg (first @recv))))))

@@ -16,6 +16,11 @@
 (defn send-message [msg]
   @(c/send-message (load-bot) msg))
 
+(defn handle-message
+  "Default handler"
+  [{msg :message}]
+  (log/info "Message content:" (:content msg)))
+
 (defonce server (atom nil))
 
 (defn stop-server []

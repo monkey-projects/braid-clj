@@ -26,14 +26,15 @@
 (s/def ::mentioned-user-ids (s/coll-of uuid?))
 (s/def ::mentioned-tag-ids (s/coll-of uuid?))
 
-(s/def ::msg (s/keys :req-un [::content ::id]
-                     :opt-un [::thread-id ::group-id ::user-id
-                              ::created-at ::mentioned-user-ids ::mentioned-tag-ids]))
+(s/def ::msg-in (s/keys
+                 :req-un [::content ::id]
+                 :opt-un [::thread-id ::group-id ::user-id
+                          ::created-at ::mentioned-user-ids ::mentioned-tag-ids]))
 
-(defn recv-message [req]
-  (let [body (get-in req [:parameters :body])]
-    (log/debug "Got incoming message:" body)
-    (rur/response "ok")))
+(s/def ::msg-out (s/keys
+                  :req-un [::content ::thread-id]
+                  :opt-un [::id ::group-id ::user-id
+                           ::created-at ::mentioned-user-ids ::mentioned-tag-ids]))
 
 (defn- valid-security-header? [req conf]
   (let [token (get-in conf [:bot :token])
@@ -71,10 +72,17 @@
     (log/trace "Incoming request:" req)
     (h req)))
 
+(defn message-handler [h]
+  (fn [req]
+    (let [msg (get-in req [:parameters :body])]
+      (log/debug "Handling incoming message:" msg)
+      (h msg)
+      (rur/response "ok"))))
+
 (defn make-router [conf]
   (ring/router
-   [["/recv" {:put {:handler recv-message
-                    :parameters {:body ::msg}}
+   [["/recv" {:put {:handler (message-handler (:handler conf))
+                    :parameters {:body ::msg-in}}
               :middleware [[validate-security-header conf]]}]]
    {:data {:muuntaja mc/instance
            :coercion rcs/coercion
@@ -92,10 +100,14 @@
     (ring/redirect-trailing-slash-handler)
     (ring/create-default-handler))))
 
-(defn start-server [conf]
+(defn start-server
+  "Starts a http server with given configuration"
+  [conf]
   (http/start-server
    (make-handler conf)
    (merge {:port 3000} (:http conf))))
 
-(defn stop-server [s]
+(defn stop-server
+  "Stops a started server"
+  [s]
   (.close s))
