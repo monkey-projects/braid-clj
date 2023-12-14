@@ -1,30 +1,30 @@
 (ns monkey.braid.test.server-test
   (:require [clojure.test :refer [deftest testing is]]
-            [aleph.http :as http]
             [clj-commons.byte-streams :as bs]
             [monkey.braid
              [server :as sut]
              [utils :as u]]
+            [org.httpkit.server :as http]
             [ring.mock.request :as rm]))
 
 (deftest start-server
   (testing "starts aleph http server"
-    (with-redefs [http/start-server (constantly ::started)]
+    (with-redefs [http/run-server (constantly ::started)]
       (is (= ::started (sut/start-server {:insecure true})))))
 
   (testing "fails when no bot token for secure server"
-    (with-redefs [http/start-server (constantly ::started)]
+    (with-redefs [http/run-server (constantly ::started)]
       (is (thrown? Exception (sut/start-server {:insecure false})))))
 
   (testing "passes http config to server"
-    (with-redefs [http/start-server (fn [_ conf]
+    (with-redefs [http/run-server (fn [_ conf]
                                       conf)]
       (is (= {:port 12432} (sut/start-server {:insecure true
                                               :http {:port 12432}})))))
 
   (testing "assigns default port"
-    (with-redefs [http/start-server (fn [_ conf]
-                                      conf)]
+    (with-redefs [http/run-server (fn [_ conf]
+                                    conf)]
       (is (= {:port 3000} (sut/start-server {:insecure true}))))))
 
 (deftest make-handler

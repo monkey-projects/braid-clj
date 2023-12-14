@@ -1,12 +1,12 @@
 (ns monkey.braid.core
-  (:require [aleph.http :as http]
-            [clojure.spec.alpha :as spec]
+  (:require [clojure.spec.alpha :as spec]
             [clojure.tools.logging :as log]
             [config.core :as cc]
             [medley.core :as mc]
             [monkey.braid
              [server :as s]
-             [utils :as u]]))
+             [utils :as u]]
+            [org.httpkit.client :as http]))
 
 (def default-url "https://braid.chat/api")
 

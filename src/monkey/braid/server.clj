@@ -1,13 +1,13 @@
 (ns monkey.braid.server
   "Code for the bot http server"
-  (:require [aleph.http :as http]
-            [buddy.core
+  (:require [buddy.core
              [codecs :as codecs]
              [mac :as mac]]
             [clojure.spec.alpha :as s]
             [clojure.tools.logging :as log]
             [medley.core :refer [update-existing]]
             [muuntaja.core :as mc]
+            [org.httpkit.server :as http]
             [reitit.coercion.spec :as rcs]
             [reitit.ring :as ring]
             [reitit.ring.coercion :as rrc]
@@ -103,7 +103,7 @@
 (defn start-server
   "Starts a http server with given configuration"
   [conf]
-  (http/start-server
+  (http/run-server
    (make-handler conf)
    (merge {:port 3000} (:http conf))))
 

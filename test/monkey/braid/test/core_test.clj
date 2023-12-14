@@ -1,9 +1,9 @@
 (ns monkey.braid.test.core-test
   (:require [clojure.test :refer [deftest testing is]]
-            [aleph.http :as http]
             [monkey.braid
              [core :as sut]
-             [server :as s]]))
+             [server :as s]]
+            [org.httpkit.client :as http]))
 
 (deftest make-bot
   (testing "creates bot object using config"

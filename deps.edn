@@ -1,9 +1,7 @@
 {:deps {com.cognitect/transit-clj {:mvn/version "1.0.333"}
-        aleph/aleph {:mvn/version "0.7.0-rc1"}
         buddy/buddy-core {:mvn/version "1.11.423"}
         ch.qos.logback/logback-classic {:mvn/version "1.4.11"}
-        com.aayushatharva.brotli4j/brotli4j {:mvn/version "1.13.0"}
-        com.github.luben/zstd-jni {:mvn/version "1.5.5-11"}
+        http-kit/http-kit {:mvn/version "2.7.0"}
         medley/medley {:mvn/version "1.4.0"}
         metosin/muuntaja-msgpack {:mvn/version "0.6.8"}
         metosin/reitit-middleware {:mvn/version "0.7.0-alpha7"}
@@ -19,6 +17,7 @@
 
   :test
   {:extra-deps {com.monkeyprojects/build {:mvn/version "0.2-SNAPSHOT"}
+                org.clj-commons/byte-streams {:mvn/version "0.3.4"}
                 ring/ring-mock {:mvn/version "0.4.0"}}
    :exec-fn monkey.test/all}
 
